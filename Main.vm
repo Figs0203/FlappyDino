@@ -1,0 +1,21 @@
+function Main.main 2
+    push constant 2
+    call Game.new 1
+    pop local 0
+    push constant 1
+    neg
+    pop local 1
+label Main_0
+    push local 1
+    not
+    if-goto Main_1
+    push local 0
+    call Game.run 1
+    pop local 1
+    goto Main_0
+label Main_1
+    push local 0
+    call Game.dispose 1
+    pop temp 0
+    push constant 0
+    return

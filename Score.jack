@@ -1,0 +1,53 @@
+
+class Score {
+   field int total;
+   field int value1;
+   field int value2;
+   field int value3;
+
+   constructor Score new() {
+      do reset();
+      return this;
+   }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   // shows score as text to avoid heavy digit sprites
+   method void show() {
+      do Output.moveCursor(0, 0);
+      do Output.printString("Score: ");
+      do Output.printInt(total);
+      return;
+   }
+
+   // keeps track of individual digits
+   method void increment() {
+      let total = total + 1;
+      let value1 = value1 + 1;
+      if (value1 > 9) {
+         let value1 = 0;
+         let value2 = value2 + 1;
+         if (value2 > 9) {
+            let value2 = 0;
+            let value3 = value3 + 1;
+         }
+      }
+      return;
+   }
+
+   method int value() {
+      return total;
+   }
+
+   method void reset() {
+      let value1 = 0;
+      let value2 = 0;
+      let value3 = 0;
+      let total = 0;
+      return;
+   }
+
+}

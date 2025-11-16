@@ -1,0 +1,45 @@
+class SpriteManager {
+
+   // Very small placeholder sprites for the pterodactyl, drawn with Screen API
+   // to keep this file tiny and avoid running out of memory in the web IDE.
+   // We also provide a clear function to erase the previous sprite position.
+
+   function void clear_pterodactilobw(int x, int y) {
+      // Clear the bounding box where the pterodactyl was previously drawn.
+      // Bounds chosen to fully cover both body and wings.
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x-4, y-1, x+14, y+5);
+      return;
+   }
+
+   function void draw_pterodactilobw(int x, int y) {
+      do Screen.setColor(true);
+      // simple body
+      do Screen.drawRectangle(x, y, x+10, y+4);
+      // left wing (down)
+      do Screen.drawRectangle(x-4, y+2, x, y+3);
+      // right wing (down)
+      do Screen.drawRectangle(x+10, y+2, x+14, y+3);
+      // small head / beak
+      do Screen.drawRectangle(x+10, y-1, x+12, y);
+      return;
+   }
+
+   function void draw_pterodactilobw2(int x, int y) {
+      do Screen.setColor(true);
+      // simple body (same)
+      do Screen.drawRectangle(x, y, x+10, y+4);
+      // wings in a different vertical position (up)
+      // left wing up
+      do Screen.drawRectangle(x-4, y, x, y+1);
+      // right wing up
+      do Screen.drawRectangle(x+10, y, x+14, y+1);
+      // small head / beak
+      do Screen.drawRectangle(x+10, y-1, x+12, y);
+      return;
+   }
+
+}
+
+
+

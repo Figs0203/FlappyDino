@@ -1,0 +1,294 @@
+function Player.new 0
+    push constant 8
+    call Memory.alloc 1
+    pop pointer 0
+    push pointer 0
+    push argument 0
+    push argument 1
+    call Player.reset 3
+    pop temp 0
+    push pointer 0
+    return
+function Player.dispose 0
+    push argument 0
+    pop pointer 0
+    push pointer 0
+    call Memory.deAlloc 1
+    pop temp 0
+    push constant 0
+    return
+function Player.jump 0
+    push argument 0
+    pop pointer 0
+    push constant 4
+    neg
+    pop this 2
+    push this 6
+    not
+    not
+    if-goto Player_1
+    push constant 1
+    neg
+    pop this 6
+    goto Player_0
+label Player_1
+label Player_0
+    push constant 0
+    return
+function Player.tick 0
+    push argument 0
+    pop pointer 0
+    push this 5
+    push constant 1
+    add
+    pop this 5
+    push this 5
+    push constant 5
+    eq
+    not
+    if-goto Player_3
+    push constant 0
+    pop this 5
+    push this 4
+    push constant 1
+    add
+    pop this 4
+    push this 2
+    push constant 6
+    lt
+    not
+    if-goto Player_5
+    push this 2
+    push constant 1
+    add
+    pop this 2
+    goto Player_4
+label Player_5
+label Player_4
+    push this 4
+    push constant 4
+    eq
+    not
+    if-goto Player_7
+    push constant 0
+    pop this 4
+    goto Player_6
+label Player_7
+label Player_6
+    goto Player_2
+label Player_3
+label Player_2
+    push this 6
+    not
+    if-goto Player_9
+    push this 2
+    push constant 0
+    gt
+    not
+    if-goto Player_11
+    push this 1
+    push constant 221
+    push this 2
+    sub
+    lt
+    not
+    if-goto Player_13
+    push this 1
+    push this 2
+    add
+    pop this 1
+    push this 3
+    push this 2
+    push constant 32
+    call Math.multiply 2
+    add
+    pop this 3
+    goto Player_12
+label Player_13
+label Player_12
+    goto Player_10
+label Player_11
+    push this 1
+    push this 2
+    neg
+    gt
+    not
+    if-goto Player_15
+    push this 1
+    push this 2
+    add
+    pop this 1
+    push this 3
+    push this 2
+    push constant 32
+    call Math.multiply 2
+    add
+    pop this 3
+    goto Player_14
+label Player_15
+    push constant 0
+    pop this 2
+label Player_14
+label Player_10
+    goto Player_8
+label Player_9
+    push this 7
+    not
+    if-goto Player_17
+    push this 5
+    push constant 1
+    eq
+    not
+    if-goto Player_19
+    push this 1
+    push constant 1
+    sub
+    pop this 1
+    push this 3
+    push constant 32
+    sub
+    pop this 3
+    push this 1
+    push constant 118
+    lt
+    not
+    if-goto Player_21
+    push constant 0
+    pop this 7
+    goto Player_20
+label Player_21
+label Player_20
+    goto Player_18
+label Player_19
+label Player_18
+    goto Player_16
+label Player_17
+    push this 5
+    push constant 1
+    eq
+    not
+    if-goto Player_23
+    push this 1
+    push constant 1
+    add
+    pop this 1
+    push this 3
+    push constant 32
+    add
+    pop this 3
+    push this 1
+    push constant 138
+    gt
+    not
+    if-goto Player_25
+    push constant 1
+    neg
+    pop this 7
+    goto Player_24
+label Player_25
+label Player_24
+    goto Player_22
+label Player_23
+label Player_22
+label Player_16
+label Player_8
+    push constant 0
+    return
+function Player.render 0
+    push argument 0
+    pop pointer 0
+    push this 4
+    push constant 0
+    eq
+    not
+    if-goto Player_27
+    push this 3
+    call SpriteManager.draw_flappy1 1
+    pop temp 0
+    goto Player_26
+label Player_27
+    push this 4
+    push constant 1
+    eq
+    not
+    if-goto Player_29
+    push this 3
+    call SpriteManager.draw_flappy2 1
+    pop temp 0
+    goto Player_28
+label Player_29
+    push this 4
+    push constant 2
+    eq
+    not
+    if-goto Player_31
+    push this 3
+    call SpriteManager.draw_flappy3 1
+    pop temp 0
+    goto Player_30
+label Player_31
+    push this 4
+    push constant 3
+    eq
+    not
+    if-goto Player_33
+    push this 3
+    call SpriteManager.draw_flappy2 1
+    pop temp 0
+    goto Player_32
+label Player_33
+label Player_32
+label Player_30
+label Player_28
+label Player_26
+    push constant 0
+    return
+function Player.update 0
+    push argument 0
+    pop pointer 0
+    push pointer 0
+    call Player.tick 1
+    pop temp 0
+    push pointer 0
+    call Player.render 1
+    pop temp 0
+    push constant 0
+    return
+function Player.x 0
+    push argument 0
+    pop pointer 0
+    push this 0
+    return
+function Player.y 0
+    push argument 0
+    pop pointer 0
+    push this 1
+    return
+function Player.reset 0
+    push argument 0
+    pop pointer 0
+    push argument 1
+    push constant 16
+    call Math.multiply 2
+    pop this 0
+    push argument 2
+    pop this 1
+    push constant 0
+    pop this 2
+    push argument 1
+    push constant 32
+    push this 1
+    call Math.multiply 2
+    add
+    pop this 3
+    push constant 0
+    pop this 4
+    push constant 0
+    pop this 5
+    push constant 0
+    pop this 6
+    push constant 1
+    neg
+    pop this 7
+    push constant 0
+    return

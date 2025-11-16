@@ -1,0 +1,270 @@
+function Score.new 0
+    push constant 4
+    call Memory.alloc 1
+    pop pointer 0
+    push pointer 0
+    call Score.reset 1
+    pop temp 0
+    push pointer 0
+    return
+function Score.dispose 0
+    push argument 0
+    pop pointer 0
+    push pointer 0
+    call Memory.deAlloc 1
+    pop temp 0
+    push constant 0
+    return
+function Score.render 0
+    push argument 0
+    pop pointer 0
+    push argument 2
+    push constant 0
+    eq
+    not
+    if-goto Score_1
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit0 1
+    pop temp 0
+    goto Score_0
+label Score_1
+    push argument 2
+    push constant 1
+    eq
+    not
+    if-goto Score_3
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit1 1
+    pop temp 0
+    goto Score_2
+label Score_3
+    push argument 2
+    push constant 2
+    eq
+    not
+    if-goto Score_5
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit2 1
+    pop temp 0
+    goto Score_4
+label Score_5
+    push argument 2
+    push constant 3
+    eq
+    not
+    if-goto Score_7
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit3 1
+    pop temp 0
+    goto Score_6
+label Score_7
+    push argument 2
+    push constant 4
+    eq
+    not
+    if-goto Score_9
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit4 1
+    pop temp 0
+    goto Score_8
+label Score_9
+    push argument 2
+    push constant 5
+    eq
+    not
+    if-goto Score_11
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit5 1
+    pop temp 0
+    goto Score_10
+label Score_11
+    push argument 2
+    push constant 6
+    eq
+    not
+    if-goto Score_13
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit6 1
+    pop temp 0
+    goto Score_12
+label Score_13
+    push argument 2
+    push constant 7
+    eq
+    not
+    if-goto Score_15
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit7 1
+    pop temp 0
+    goto Score_14
+label Score_15
+    push argument 2
+    push constant 8
+    eq
+    not
+    if-goto Score_17
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit8 1
+    pop temp 0
+    goto Score_16
+label Score_17
+    push argument 2
+    push constant 9
+    eq
+    not
+    if-goto Score_19
+    push argument 1
+    push constant 512
+    add
+    call SpriteManager.draw_digit9 1
+    pop temp 0
+    goto Score_18
+label Score_19
+label Score_18
+label Score_16
+label Score_14
+label Score_12
+label Score_10
+label Score_8
+label Score_6
+label Score_4
+label Score_2
+label Score_0
+    push constant 0
+    return
+function Score.show 0
+    push argument 0
+    pop pointer 0
+    push this 0
+    push constant 99
+    gt
+    not
+    if-goto Score_21
+    push pointer 0
+    push constant 16
+    push this 1
+    call Score.render 3
+    pop temp 0
+    push pointer 0
+    push constant 14
+    push this 2
+    call Score.render 3
+    pop temp 0
+    push pointer 0
+    push constant 12
+    push this 3
+    call Score.render 3
+    pop temp 0
+    goto Score_20
+label Score_21
+    push this 0
+    push constant 9
+    gt
+    not
+    if-goto Score_23
+    push pointer 0
+    push constant 16
+    push this 1
+    call Score.render 3
+    pop temp 0
+    push pointer 0
+    push constant 14
+    push this 2
+    call Score.render 3
+    pop temp 0
+    goto Score_22
+label Score_23
+    push this 0
+    push constant 0
+    gt
+    not
+    if-goto Score_25
+    push pointer 0
+    push constant 15
+    push this 1
+    call Score.render 3
+    pop temp 0
+    goto Score_24
+label Score_25
+label Score_24
+label Score_22
+label Score_20
+    push constant 0
+    return
+function Score.increment 0
+    push argument 0
+    pop pointer 0
+    push this 0
+    push constant 1
+    add
+    pop this 0
+    push this 1
+    push constant 1
+    add
+    pop this 1
+    push this 1
+    push constant 9
+    gt
+    not
+    if-goto Score_27
+    push constant 0
+    pop this 1
+    push this 2
+    push constant 1
+    add
+    pop this 2
+    push this 2
+    push constant 9
+    gt
+    not
+    if-goto Score_29
+    push constant 0
+    pop this 2
+    push this 3
+    push constant 1
+    add
+    pop this 3
+    goto Score_28
+label Score_29
+label Score_28
+    goto Score_26
+label Score_27
+label Score_26
+    push constant 0
+    return
+function Score.value 0
+    push argument 0
+    pop pointer 0
+    push this 0
+    return
+function Score.reset 0
+    push argument 0
+    pop pointer 0
+    push constant 0
+    pop this 1
+    push constant 0
+    pop this 2
+    push constant 0
+    pop this 3
+    push constant 0
+    pop this 0
+    push constant 0
+    return
