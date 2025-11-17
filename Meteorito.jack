@@ -7,8 +7,8 @@ class Meteorito {
    field int speed;
    field int lastX;
    field int baseY;
-   field int spriteType; // 0 for meteorito1, 1 for meteorito2
-   field boolean justExitedScreen; // true if meteorito just exited left side
+   field int spriteType; // 0 para meteorito1, 1 para meteorito2 
+   field boolean justExitedScreen; // true si el meteorito sale del lado izquierdo
 
    constructor Meteorito new(int x, int y) {
       do reset(x, y);
@@ -21,9 +21,7 @@ class Meteorito {
    }
 
    method void draw() {
-      // Only draw if position is within valid screen bounds (0-511 for x, 0-255 for y)
-      // Sprite is 20x20, so xPos + 20 must be <= 511, meaning xPos <= 491
-      // Using ~(x < 0) for x >= 0, and ~((xPos + 20) > 511) for (xPos + 20) <= 511
+      // dibujar si esta en una posicion "valida" (con espacio suficiente)
       if ((~(xPos < 0)) & (~((xPos + 20) > 511))) {
          if ((~(yPos < 0)) & (~((yPos + 20) > 255))) {
             // Alternate between two sprite types for visual variety
@@ -38,10 +36,7 @@ class Meteorito {
    }
 
    method void clear() {
-      // Clear the area where meteorito was drawn (at last position)
-      // Only clear if lastX is within valid screen bounds
-      // Sprite is 20x20, so lastX + 20 must be <= 511
-      // Using ~(x < 0) for x >= 0, and ~((lastX + 20) > 511) for (lastX + 20) <= 511
+      // clear donde estaba el meteorito
       if ((~(lastX < 0)) & (~((lastX + 20) > 511))) {
          if ((~(yPos < 0)) & (~((yPos + 20) > 255))) {
             do SpriteManager.clear_meteorito(lastX, yPos);
@@ -50,11 +45,9 @@ class Meteorito {
       return;
    }
 
-   // Check collision with player rectangle
-   // Returns: 2 = collision, 0 = no collision
-   // Increased hitbox for better collision detection
+   // ver si el jugador de choca
    method int is_colliding(int playerLeft, int playerRight, int playerTop, int playerBottom) {
-      // Expanded meteorito hitbox by 2 pixels on each side for better detection
+      // la hitbox es 2 pixeles mas grande que la sprite
       var int expandedLeft;
       var int expandedRight;
       var int expandedTop;
@@ -63,7 +56,7 @@ class Meteorito {
       let expandedRight = xPos + width + 2;
       let expandedTop = yPos - 2;
       let expandedBottom = yPos + height + 2;
-      // Check if player rectangle overlaps with expanded meteorito rectangle
+      // ver si la hitbox del meteorito hace overlap con la del jugador
       if ((playerRight > expandedLeft) & (playerLeft < expandedRight)) {
          if ((playerBottom > expandedTop) & (playerTop < expandedBottom)) {
             return 2; // collision
@@ -97,7 +90,7 @@ class Meteorito {
       let speed = 2;
       let lastX = x;
       let justExitedScreen = false;
-      // Use baseY to determine sprite type for variety (0 or 1)
+      // basey determina que sprite spawnea
       let spriteType = baseY & 1;
       return;
    }
@@ -108,8 +101,7 @@ class Meteorito {
       return;
    }
 
-   // Check if meteorito just exited the left side of the screen
-   // Returns: 2 if meteorito just exited, 0 otherwise
+   // ver si el meteorito sale de la pantalla por la izquierda
    method int justExited() {
       if (justExitedScreen) {
          let justExitedScreen = false; // Reset flag after checking
@@ -123,40 +115,30 @@ class Meteorito {
       var int yVariation;
       var int yOffset;
       var int safeBaseY;
-      // Remember last position before moving
       let lastX = xPos;
-      // Move meteorito from right to left
+      // mover el meteorito
       let xPos = xPos - speed;
-      // If meteorito goes off the left side, reset it to the right side
-      // Make sure xPos + width doesn't exceed screen width (max 511)
-      // Screen is 512 pixels wide (0-511), so max xPos is 491 (491+20=511)
+      // si el meteorito sale por la izquierda poner uno en la derecha
       if ((xPos + width) < 0) {
-         // Mark that this meteorito just exited the screen
          let justExitedScreen = true;
-         // Vary X position based on baseY to space out meteoritos
-         // Each meteorito gets a different starting X based on its baseY
-         // This creates independent appearance patterns
-         // Use simpler calculation to avoid arithmetic errors
+         // variar movimientos en x
          let offsetX = baseY & 63; // Offset 0-63 pixels (safer than multiplication)
          let xPos = 491 - offsetX; // Start from right, with variation (491+20=511)
-         // Ensure xPos doesn't go below 0
+         // x no este en negativo
          if (xPos < 0) {
             let xPos = 0;
          }
-         // Ensure xPos + width doesn't exceed 511
          if ((xPos + width) > 511) {
             let xPos = 491;
          }
-         let lastX = xPos; // Also update lastX to avoid clearing at negative position
-         // Alternate sprite type when repositioning for visual variety
+         let lastX = xPos; 
+         // alternar sprites
          if (spriteType = 0) {
             let spriteType = 1;
          } else {
             let spriteType = 0;
          }
-         // Vary the Y position based on baseY to create independent patterns
-         // Use only baseY to avoid any arithmetic that could cause overflow
-         // Limit baseY to safe range first
+         // variar y
          if (baseY > 255) {
             let safeBaseY = 255;
          } else {
@@ -166,9 +148,8 @@ class Meteorito {
                let safeBaseY = baseY;
             }
          }
-         // Use only safeBaseY for variation, no addition with xPos
-         let yVariation = safeBaseY & 7; // Create variation: 0-7 range (very safe, no addition)
-         // Map yVariation to offset range using simple if-else
+
+         let yVariation = safeBaseY & 7; // crear variacion
          if (yVariation > 5) {
             let yOffset = 15;
          } else {
@@ -183,7 +164,7 @@ class Meteorito {
             }
          }
          let yPos = safeBaseY + yOffset; // Vary around safeBaseY
-         // Ensure yPos stays within screen bounds (0-255, considering height=20, max yPos=235)
+         // y pos esta en los rangos
          if (yPos > 235) {
             let yPos = 235;
          }
