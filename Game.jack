@@ -27,8 +27,8 @@ class Game {
       let score = Score.new();
       // create meteoritos starting from the right side of the screen
       // Position them with large spacing so they appear independently, not in groups
-      // Max xPos is 499 (since width=12, 499+12=511 is the screen limit)
-      let meteorito1 = Meteorito.new(499, 100);
+      // Max xPos is 491 (since width=20, 491+20=511 is the screen limit)
+      let meteorito1 = Meteorito.new(491, 100);
       let meteorito2 = Meteorito.new(300, 150);
       let meteorito3 = Meteorito.new(100, 80);
       let frameCounter = 0;
@@ -314,7 +314,7 @@ class Game {
       do player.reset(8, 128);
       do score.reset();
       // reset meteoritos to their initial positions (right side of screen, spaced apart)
-      do meteorito1.reset(499, 100);
+      do meteorito1.reset(491, 100);
       do meteorito2.reset(300, 150);
       do meteorito3.reset(100, 80);
       return;

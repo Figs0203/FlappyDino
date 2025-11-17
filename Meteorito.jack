@@ -20,15 +20,11 @@ class Meteorito {
 
    method void draw() {
       // Only draw if position is within valid screen bounds (0-511 for x, 0-255 for y)
-      // xPos + width must be <= 511, so xPos <= 499 (since width = 12)
-      // Using ~(x < 0) for x >= 0, and ~((xPos + width) > 511) for (xPos + width) <= 511
-      if ((~(xPos < 0)) & (~((xPos + width) > 511))) {
-         if ((~(yPos < 0)) & (~((yPos + height) > 255))) {
-      do Screen.setColor(true);
-      // Main body (circular approximation)
-      do Screen.drawRectangle(xPos, yPos, xPos+width, yPos+height);
-      // Add some detail to make it look more like a meteor
-      do Screen.drawRectangle(xPos+2, yPos+2, xPos+width-2, yPos+height-2);
+      // Sprite is 20x20, so xPos + 20 must be <= 511, meaning xPos <= 491
+      // Using ~(x < 0) for x >= 0, and ~((xPos + 20) > 511) for (xPos + 20) <= 511
+      if ((~(xPos < 0)) & (~((xPos + 20) > 511))) {
+         if ((~(yPos < 0)) & (~((yPos + 20) > 255))) {
+            do SpriteManager.draw_meteorito(xPos, yPos);
          }
       }
       return;
@@ -37,11 +33,11 @@ class Meteorito {
    method void clear() {
       // Clear the area where meteorito was drawn (at last position)
       // Only clear if lastX is within valid screen bounds
-      // Using ~(x < 0) for x >= 0, and ~((lastX + width) > 511) for (lastX + width) <= 511
-      if ((~(lastX < 0)) & (~((lastX + width) > 511))) {
-         if ((~(yPos < 0)) & (~((yPos + height) > 255))) {
-      do Screen.setColor(false);
-            do Screen.drawRectangle(lastX, yPos, lastX+width, yPos+height);
+      // Sprite is 20x20, so lastX + 20 must be <= 511
+      // Using ~(x < 0) for x >= 0, and ~((lastX + 20) > 511) for (lastX + 20) <= 511
+      if ((~(lastX < 0)) & (~((lastX + 20) > 511))) {
+         if ((~(yPos < 0)) & (~((yPos + 20) > 255))) {
+            do SpriteManager.clear_meteorito(lastX, yPos);
          }
       }
       return;
@@ -79,8 +75,8 @@ class Meteorito {
       let xPos = x;
       let yPos = y;
       let baseY = y;
-      let width = 12;
-      let height = 12;
+      let width = 20;  // Updated to match doubled sprite size (x+2 to x+20)
+      let height = 20; // Updated to match doubled sprite size (y+2 to y+20)
       let speed = 2;
       let lastX = x;
       return;
@@ -103,21 +99,21 @@ class Meteorito {
       let xPos = xPos - speed;
       // If meteorito goes off the left side, reset it to the right side
       // Make sure xPos + width doesn't exceed screen width (max 511)
-      // Screen is 512 pixels wide (0-511), so max xPos is 499 (499+12=511)
+      // Screen is 512 pixels wide (0-511), so max xPos is 491 (491+20=511)
       if ((xPos + width) < 0) {
          // Vary X position based on baseY to space out meteoritos
          // Each meteorito gets a different starting X based on its baseY
          // This creates independent appearance patterns
          // Use simpler calculation to avoid arithmetic errors
          let offsetX = baseY & 63; // Offset 0-63 pixels (safer than multiplication)
-         let xPos = 499 - offsetX; // Start from right, with variation
+         let xPos = 491 - offsetX; // Start from right, with variation (491+20=511)
          // Ensure xPos doesn't go below 0
          if (xPos < 0) {
             let xPos = 0;
          }
          // Ensure xPos + width doesn't exceed 511
          if ((xPos + width) > 511) {
-            let xPos = 499;
+            let xPos = 491;
          }
          let lastX = xPos; // Also update lastX to avoid clearing at negative position
          // Vary the Y position based on baseY to create independent patterns
@@ -149,9 +145,9 @@ class Meteorito {
             }
          }
          let yPos = safeBaseY + yOffset; // Vary around safeBaseY
-         // Ensure yPos stays within screen bounds (0-255, considering height=12, max yPos=243)
-         if (yPos > 243) {
-            let yPos = 243;
+         // Ensure yPos stays within screen bounds (0-255, considering height=20, max yPos=235)
+         if (yPos > 235) {
+            let yPos = 235;
          }
          if (yPos < 0) {
             let yPos = 0;

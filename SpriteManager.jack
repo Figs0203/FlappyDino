@@ -268,6 +268,101 @@ class SpriteManager {
       return;
    }
 
+   function void clear_meteorito(int x, int y) {
+      // Clear the bounding box where the meteorito was previously drawn.
+      // Sprite bounds: x+2 to x+20, y+2 to y+20 (doubled size: 20x20)
+      // Validate coordinates to prevent ERR9 errors
+      if ((~(x < 0)) & (~((x + 22) > 512))) {
+         if ((~(y < 0)) & (~((y + 22) > 256))) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x+2, y+2, x+22, y+22);
+         }
+      }
+      return;
+   }
+
+   function void draw_meteorito(int x, int y) {
+      // Validate coordinates to prevent ERR9 errors
+      // Only draw if coordinates are within valid screen bounds
+      if ((~(x < 0)) & (~((x + 22) > 512))) {
+         if ((~(y < 0)) & (~((y + 22) > 256))) {
+            do Screen.setColor(true);
+
+            // Row 1 (y+2 to y+4) - doubled
+            do Screen.drawRectangle(x+6, y+2, x+8, y+4);
+            do Screen.drawRectangle(x+8, y+2, x+10, y+4);
+            do Screen.drawRectangle(x+10, y+2, x+12, y+4);
+            do Screen.drawRectangle(x+12, y+2, x+14, y+4);
+            do Screen.drawRectangle(x+14, y+2, x+16, y+4);
+
+            // Row 2 (y+4 to y+6) - doubled
+            do Screen.drawRectangle(x+4, y+4, x+6, y+6);
+            do Screen.drawRectangle(x+6, y+4, x+8, y+6);
+            do Screen.drawRectangle(x+8, y+4, x+10, y+6);
+            do Screen.drawRectangle(x+14, y+4, x+16, y+6);
+            do Screen.drawRectangle(x+16, y+4, x+18, y+6);
+
+            // Row 3 (y+6 to y+8) - doubled
+            do Screen.drawRectangle(x+2, y+6, x+4, y+8);
+            do Screen.drawRectangle(x+4, y+6, x+6, y+8);
+            do Screen.drawRectangle(x+6, y+6, x+8, y+8);
+            do Screen.drawRectangle(x+10, y+6, x+12, y+8);
+            do Screen.drawRectangle(x+16, y+6, x+18, y+8);
+            do Screen.drawRectangle(x+18, y+6, x+20, y+8);
+
+            // Row 4 (y+8 to y+10) - doubled
+            do Screen.drawRectangle(x+2, y+8, x+4, y+10);
+            do Screen.drawRectangle(x+4, y+8, x+6, y+10);
+            do Screen.drawRectangle(x+6, y+8, x+8, y+10);
+            do Screen.drawRectangle(x+8, y+8, x+10, y+10);
+            do Screen.drawRectangle(x+10, y+8, x+12, y+10);
+            do Screen.drawRectangle(x+12, y+8, x+14, y+10);
+            do Screen.drawRectangle(x+18, y+8, x+20, y+10);
+
+            // Row 5 (y+10 to y+12) - doubled
+            do Screen.drawRectangle(x+2, y+10, x+4, y+12);
+            do Screen.drawRectangle(x+4, y+10, x+6, y+12);
+            do Screen.drawRectangle(x+10, y+10, x+12, y+12);
+            do Screen.drawRectangle(x+16, y+10, x+18, y+12);
+            do Screen.drawRectangle(x+18, y+10, x+20, y+12);
+
+            // Row 6 (y+12 to y+14) - doubled
+            do Screen.drawRectangle(x+2, y+12, x+4, y+14);
+            do Screen.drawRectangle(x+6, y+12, x+8, y+14);
+            do Screen.drawRectangle(x+8, y+12, x+10, y+14);
+            do Screen.drawRectangle(x+12, y+12, x+14, y+14);
+            do Screen.drawRectangle(x+14, y+12, x+16, y+14);
+            do Screen.drawRectangle(x+16, y+12, x+18, y+14);
+            do Screen.drawRectangle(x+18, y+12, x+20, y+14);
+
+            // Row 7 (y+14 to y+16) - doubled
+            do Screen.drawRectangle(x+2, y+14, x+4, y+16);
+            do Screen.drawRectangle(x+4, y+14, x+6, y+16);
+            do Screen.drawRectangle(x+8, y+14, x+10, y+16);
+            do Screen.drawRectangle(x+10, y+14, x+12, y+16);
+            do Screen.drawRectangle(x+12, y+14, x+14, y+16);
+            do Screen.drawRectangle(x+16, y+14, x+18, y+16);
+            do Screen.drawRectangle(x+18, y+14, x+20, y+16);
+
+            // Row 8 (y+16 to y+18) - doubled
+            do Screen.drawRectangle(x+4, y+16, x+6, y+18);
+            do Screen.drawRectangle(x+6, y+16, x+8, y+18);
+            do Screen.drawRectangle(x+8, y+16, x+10, y+18);
+            do Screen.drawRectangle(x+10, y+16, x+12, y+18);
+            do Screen.drawRectangle(x+14, y+16, x+16, y+18);
+            do Screen.drawRectangle(x+16, y+16, x+18, y+18);
+
+            // Row 9 (y+18 to y+20) - doubled
+            do Screen.drawRectangle(x+6, y+18, x+8, y+20);
+            do Screen.drawRectangle(x+8, y+18, x+10, y+20);
+            do Screen.drawRectangle(x+10, y+18, x+12, y+20);
+            do Screen.drawRectangle(x+12, y+18, x+14, y+20);
+            do Screen.drawRectangle(x+14, y+18, x+16, y+20);
+         }
+      }
+      return;
+   }
+
 }
 
 
