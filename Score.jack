@@ -15,10 +15,10 @@ class Score {
       return;
    }
 
-   // shows score as text to avoid heavy digit sprites
+   // muestra el puntaje como texto
    method void show() {
       var int safeTotal;
-      // Ensure total is within safe range to prevent ERR6e errors
+      // el total es en el rango seguro
       if (total < 0) {
          let safeTotal = 0;
       } else {
@@ -34,7 +34,7 @@ class Score {
       return;
    }
 
-   // keeps track of individual digits
+   // digitos individuales
    method void increment() {
       let total = total + 1;
       let value1 = value1 + 1;
