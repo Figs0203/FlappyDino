@@ -12,13 +12,6 @@ FlappyDino es un juego de acción y supervivencia donde el jugador controla un p
 - **Variedad visual**: Dos tipos diferentes de sprites de meteoritos que se alternan para mayor variedad
 - **Espinas mortales**: Espinas en movimiento en la parte superior e inferior de la pantalla que matan al jugador al contacto
 - **Sistema de puntuación**: El score aumenta cada vez que un meteorito sale completamente del mapa por el lado izquierdo
-- **Detección de colisiones mejorada**: Hitboxes ampliadas para una mejor experiencia de juego
-
-### Controles
-
-- **Espacio (SPACE)**: Hace que el pterodáctilo salte hacia arriba
-- **R**: Reinicia el juego (después de Game Over)
-- **Q**: Sale del juego
 
 ### Objetivo
 
