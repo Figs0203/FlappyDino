@@ -7,6 +7,8 @@ class Meteorito {
    field int speed;
    field int lastX;
    field int baseY;
+   field int spriteType; // 0 for meteorito1, 1 for meteorito2
+   field boolean justExitedScreen; // true if meteorito just exited left side
 
    constructor Meteorito new(int x, int y) {
       do reset(x, y);
@@ -24,7 +26,12 @@ class Meteorito {
       // Using ~(x < 0) for x >= 0, and ~((xPos + 20) > 511) for (xPos + 20) <= 511
       if ((~(xPos < 0)) & (~((xPos + 20) > 511))) {
          if ((~(yPos < 0)) & (~((yPos + 20) > 255))) {
-            do SpriteManager.draw_meteorito(xPos, yPos);
+            // Alternate between two sprite types for visual variety
+            if (spriteType = 0) {
+               do SpriteManager.draw_meteorito(xPos, yPos);
+            } else {
+               do SpriteManager.draw_meteorito2(xPos, yPos);
+            }
          }
       }
       return;
@@ -45,10 +52,20 @@ class Meteorito {
 
    // Check collision with player rectangle
    // Returns: 2 = collision, 0 = no collision
+   // Increased hitbox for better collision detection
    method int is_colliding(int playerLeft, int playerRight, int playerTop, int playerBottom) {
-      // Check if player rectangle overlaps with meteorito rectangle
-      if ((playerRight > xPos) & (playerLeft < (xPos+width))) {
-         if ((playerBottom > yPos) & (playerTop < (yPos+height))) {
+      // Expanded meteorito hitbox by 2 pixels on each side for better detection
+      var int expandedLeft;
+      var int expandedRight;
+      var int expandedTop;
+      var int expandedBottom;
+      let expandedLeft = xPos - 2;
+      let expandedRight = xPos + width + 2;
+      let expandedTop = yPos - 2;
+      let expandedBottom = yPos + height + 2;
+      // Check if player rectangle overlaps with expanded meteorito rectangle
+      if ((playerRight > expandedLeft) & (playerLeft < expandedRight)) {
+         if ((playerBottom > expandedTop) & (playerTop < expandedBottom)) {
             return 2; // collision
          }
       }
@@ -79,6 +96,9 @@ class Meteorito {
       let height = 20; // Updated to match doubled sprite size (y+2 to y+20)
       let speed = 2;
       let lastX = x;
+      let justExitedScreen = false;
+      // Use baseY to determine sprite type for variety (0 or 1)
+      let spriteType = baseY & 1;
       return;
    }
 
@@ -86,6 +106,16 @@ class Meteorito {
       let xPos = x;
       let yPos = y;
       return;
+   }
+
+   // Check if meteorito just exited the left side of the screen
+   // Returns: 2 if meteorito just exited, 0 otherwise
+   method int justExited() {
+      if (justExitedScreen) {
+         let justExitedScreen = false; // Reset flag after checking
+         return 2;
+      }
+      return 0;
    }
 
    method void update() {
@@ -101,6 +131,8 @@ class Meteorito {
       // Make sure xPos + width doesn't exceed screen width (max 511)
       // Screen is 512 pixels wide (0-511), so max xPos is 491 (491+20=511)
       if ((xPos + width) < 0) {
+         // Mark that this meteorito just exited the screen
+         let justExitedScreen = true;
          // Vary X position based on baseY to space out meteoritos
          // Each meteorito gets a different starting X based on its baseY
          // This creates independent appearance patterns
@@ -116,6 +148,12 @@ class Meteorito {
             let xPos = 491;
          }
          let lastX = xPos; // Also update lastX to avoid clearing at negative position
+         // Alternate sprite type when repositioning for visual variety
+         if (spriteType = 0) {
+            let spriteType = 1;
+         } else {
+            let spriteType = 0;
+         }
          // Vary the Y position based on baseY to create independent patterns
          // Use only baseY to avoid any arithmetic that could cause overflow
          // Limit baseY to safe range first

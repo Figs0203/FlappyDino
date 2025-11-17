@@ -363,6 +363,321 @@ class SpriteManager {
       return;
    }
 
+   function void draw_meteorito2(int x, int y) {
+      // Validate coordinates to prevent ERR9 errors
+      // Only draw if coordinates are within valid screen bounds
+      if ((~(x < 0)) & (~((x + 22) > 512))) {
+         if ((~(y < 0)) & (~((y + 22) > 256))) {
+            do Screen.setColor(true);
+
+            // Row 1 (y+2 to y+4) - doubled
+            do Screen.drawRectangle(x+6, y+2, x+8, y+4);
+            do Screen.drawRectangle(x+8, y+2, x+10, y+4);
+            do Screen.drawRectangle(x+10, y+2, x+12, y+4);
+            do Screen.drawRectangle(x+12, y+2, x+14, y+4);
+            do Screen.drawRectangle(x+14, y+2, x+16, y+4);
+
+            // Row 2 (y+4 to y+6) - doubled
+            do Screen.drawRectangle(x+4, y+4, x+6, y+6);
+            do Screen.drawRectangle(x+6, y+4, x+8, y+6);
+            do Screen.drawRectangle(x+12, y+4, x+14, y+6);
+            do Screen.drawRectangle(x+14, y+4, x+16, y+6);
+            do Screen.drawRectangle(x+16, y+4, x+18, y+6);
+
+            // Row 3 (y+6 to y+8) - doubled
+            do Screen.drawRectangle(x+2, y+6, x+4, y+8);
+            do Screen.drawRectangle(x+4, y+6, x+6, y+8);
+            do Screen.drawRectangle(x+8, y+6, x+10, y+8);
+            do Screen.drawRectangle(x+10, y+6, x+12, y+8);
+            do Screen.drawRectangle(x+12, y+6, x+14, y+8);
+            do Screen.drawRectangle(x+16, y+6, x+18, y+8);
+            do Screen.drawRectangle(x+18, y+6, x+20, y+8);
+
+            // Row 4 (y+8 to y+10) - doubled
+            do Screen.drawRectangle(x+2, y+8, x+4, y+10);
+            do Screen.drawRectangle(x+12, y+8, x+14, y+10);
+            do Screen.drawRectangle(x+14, y+8, x+16, y+10);
+            do Screen.drawRectangle(x+18, y+8, x+20, y+10);
+
+            // Row 5 (y+10 to y+12) - doubled
+            do Screen.drawRectangle(x+2, y+10, x+4, y+12);
+            do Screen.drawRectangle(x+12, y+10, x+14, y+12);
+            do Screen.drawRectangle(x+18, y+10, x+20, y+12);
+
+            // Row 6 (y+12 to y+14) - doubled
+            do Screen.drawRectangle(x+2, y+12, x+4, y+14);
+            do Screen.drawRectangle(x+4, y+12, x+6, y+14);
+            do Screen.drawRectangle(x+8, y+12, x+10, y+14);
+            do Screen.drawRectangle(x+12, y+12, x+14, y+14);
+            do Screen.drawRectangle(x+14, y+12, x+16, y+14);
+            do Screen.drawRectangle(x+18, y+12, x+20, y+14);
+
+            // Row 7 (y+14 to y+16) - doubled
+            do Screen.drawRectangle(x+2, y+14, x+4, y+16);
+            do Screen.drawRectangle(x+4, y+14, x+6, y+16);
+            do Screen.drawRectangle(x+6, y+14, x+8, y+16);
+            do Screen.drawRectangle(x+8, y+14, x+10, y+16);
+            do Screen.drawRectangle(x+10, y+14, x+12, y+16);
+            do Screen.drawRectangle(x+14, y+14, x+16, y+16);
+            do Screen.drawRectangle(x+16, y+14, x+18, y+16);
+            do Screen.drawRectangle(x+18, y+14, x+20, y+16);
+
+            // Row 8 (y+16 to y+18) - doubled
+            do Screen.drawRectangle(x+4, y+16, x+6, y+18);
+            do Screen.drawRectangle(x+6, y+16, x+8, y+18);
+            do Screen.drawRectangle(x+12, y+16, x+14, y+18);
+            do Screen.drawRectangle(x+14, y+16, x+16, y+18);
+            do Screen.drawRectangle(x+16, y+16, x+18, y+18);
+
+            // Row 9 (y+18 to y+20) - doubled
+            do Screen.drawRectangle(x+6, y+18, x+8, y+20);
+            do Screen.drawRectangle(x+8, y+18, x+10, y+20);
+            do Screen.drawRectangle(x+10, y+18, x+12, y+20);
+            do Screen.drawRectangle(x+12, y+18, x+14, y+20);
+            do Screen.drawRectangle(x+14, y+18, x+16, y+20);
+         }
+      }
+      return;
+   }
+
+   // Draw spikes at the top of the screen
+   // offsetX: horizontal offset for scrolling effect
+   function void draw_top_spikes(int offsetX) {
+      var int x;
+      var int spikeHeight;
+      var int startX;
+      var int patternX;
+      let spikeHeight = 10;
+      do Screen.setColor(true);
+      // Draw spikes pattern across the entire width of the screen (0-511)
+      // Start from offsetX and wrap around to cover the entire screen
+      let startX = offsetX;
+      // Normalize offsetX to be within 0-15 range (since pattern repeats every 16 pixels)
+      while (startX < 0) {
+         let startX = startX + 16;
+      }
+      while (startX > 15) {
+         let startX = startX - 16;
+      }
+      // Draw from startX to cover the entire screen width (512 pixels)
+      let x = startX - 16;
+      while (x < 512) {
+         // Calculate pattern position (0-15 range)
+         let patternX = x;
+         while (patternX < 0) {
+            let patternX = patternX + 16;
+         }
+         while (patternX > 15) {
+            let patternX = patternX - 16;
+         }
+         // Draw a spike pointing down (triangle shape using rectangles)
+         // Only draw if x is within screen bounds (0-511)
+         if ((~(x < 0)) & (~(x > 511))) {
+            // Row 0 (base): full width
+            if ((x + 16) > 511) {
+               do Screen.drawRectangle(x, 0, 512, 1);
+            } else {
+               do Screen.drawRectangle(x, 0, x + 16, 1);
+            }
+            // Row 1: narrower
+            if ((x + 1) < 512) {
+               if ((x + 15) > 511) {
+                  do Screen.drawRectangle(x + 1, 1, 512, 2);
+               } else {
+                  do Screen.drawRectangle(x + 1, 1, x + 15, 2);
+               }
+            }
+            // Row 2: narrower
+            if ((x + 2) < 512) {
+               if ((x + 14) > 511) {
+                  do Screen.drawRectangle(x + 2, 2, 512, 3);
+               } else {
+                  do Screen.drawRectangle(x + 2, 2, x + 14, 3);
+               }
+            }
+            // Row 3: narrower
+            if ((x + 3) < 512) {
+               if ((x + 13) > 511) {
+                  do Screen.drawRectangle(x + 3, 3, 512, 4);
+               } else {
+                  do Screen.drawRectangle(x + 3, 3, x + 13, 4);
+               }
+            }
+            // Row 4: narrower
+            if ((x + 4) < 512) {
+               if ((x + 12) > 511) {
+                  do Screen.drawRectangle(x + 4, 4, 512, 5);
+               } else {
+                  do Screen.drawRectangle(x + 4, 4, x + 12, 5);
+               }
+            }
+            // Row 5: narrower
+            if ((x + 5) < 512) {
+               if ((x + 11) > 511) {
+                  do Screen.drawRectangle(x + 5, 5, 512, 6);
+               } else {
+                  do Screen.drawRectangle(x + 5, 5, x + 11, 6);
+               }
+            }
+            // Row 6: narrower
+            if ((x + 6) < 512) {
+               if ((x + 10) > 511) {
+                  do Screen.drawRectangle(x + 6, 6, 512, 7);
+               } else {
+                  do Screen.drawRectangle(x + 6, 6, x + 10, 7);
+               }
+            }
+            // Row 7: narrower
+            if ((x + 7) < 512) {
+               if ((x + 9) > 511) {
+                  do Screen.drawRectangle(x + 7, 7, 512, 8);
+               } else {
+                  do Screen.drawRectangle(x + 7, 7, x + 9, 8);
+               }
+            }
+            // Row 8: point
+            if ((x + 7) < 512) {
+               if ((x + 9) > 511) {
+                  do Screen.drawRectangle(x + 7, 8, 512, 9);
+               } else {
+                  do Screen.drawRectangle(x + 7, 8, x + 9, 9);
+               }
+            }
+            // Row 9: point
+            if ((x + 7) < 512) {
+               if ((x + 9) > 511) {
+                  do Screen.drawRectangle(x + 7, 9, 512, 10);
+               } else {
+                  do Screen.drawRectangle(x + 7, 9, x + 9, 10);
+               }
+            }
+         }
+         let x = x + 16;
+      }
+      return;
+   }
+
+   // Draw spikes at the bottom of the screen
+   // offsetX: horizontal offset for scrolling effect
+   function void draw_bottom_spikes(int offsetX) {
+      var int x;
+      var int bottomY;
+      var int spikeHeight;
+      var int startX;
+      var int patternX;
+      let spikeHeight = 10;
+      let bottomY = 255;
+      do Screen.setColor(true);
+      // Draw spikes pattern across the entire width of the screen (0-511)
+      // Start from offsetX and wrap around to cover the entire screen
+      let startX = offsetX;
+      // Normalize offsetX to be within 0-15 range (since pattern repeats every 16 pixels)
+      while (startX < 0) {
+         let startX = startX + 16;
+      }
+      while (startX > 15) {
+         let startX = startX - 16;
+      }
+      // Draw from startX to cover the entire screen width (512 pixels)
+      let x = startX - 16;
+      while (x < 512) {
+         // Calculate pattern position (0-15 range)
+         let patternX = x;
+         while (patternX < 0) {
+            let patternX = patternX + 16;
+         }
+         while (patternX > 15) {
+            let patternX = patternX - 16;
+         }
+         // Draw a spike pointing up (triangle shape using rectangles)
+         // Only draw if x is within screen bounds (0-511)
+         if ((~(x < 0)) & (~(x > 511))) {
+            // Row 0 (point at top)
+            if ((x + 7) < 512) {
+               if ((x + 9) > 511) {
+                  do Screen.drawRectangle(x + 7, bottomY - 9, 512, bottomY - 8);
+               } else {
+                  do Screen.drawRectangle(x + 7, bottomY - 9, x + 9, bottomY - 8);
+               }
+            }
+            // Row 1: point
+            if ((x + 7) < 512) {
+               if ((x + 9) > 511) {
+                  do Screen.drawRectangle(x + 7, bottomY - 8, 512, bottomY - 7);
+               } else {
+                  do Screen.drawRectangle(x + 7, bottomY - 8, x + 9, bottomY - 7);
+               }
+            }
+            // Row 2: wider
+            if ((x + 6) < 512) {
+               if ((x + 10) > 511) {
+                  do Screen.drawRectangle(x + 6, bottomY - 7, 512, bottomY - 6);
+               } else {
+                  do Screen.drawRectangle(x + 6, bottomY - 7, x + 10, bottomY - 6);
+               }
+            }
+            // Row 3: wider
+            if ((x + 5) < 512) {
+               if ((x + 11) > 511) {
+                  do Screen.drawRectangle(x + 5, bottomY - 6, 512, bottomY - 5);
+               } else {
+                  do Screen.drawRectangle(x + 5, bottomY - 6, x + 11, bottomY - 5);
+               }
+            }
+            // Row 4: wider
+            if ((x + 4) < 512) {
+               if ((x + 12) > 511) {
+                  do Screen.drawRectangle(x + 4, bottomY - 5, 512, bottomY - 4);
+               } else {
+                  do Screen.drawRectangle(x + 4, bottomY - 5, x + 12, bottomY - 4);
+               }
+            }
+            // Row 5: wider
+            if ((x + 3) < 512) {
+               if ((x + 13) > 511) {
+                  do Screen.drawRectangle(x + 3, bottomY - 4, 512, bottomY - 3);
+               } else {
+                  do Screen.drawRectangle(x + 3, bottomY - 4, x + 13, bottomY - 3);
+               }
+            }
+            // Row 6: wider
+            if ((x + 2) < 512) {
+               if ((x + 14) > 511) {
+                  do Screen.drawRectangle(x + 2, bottomY - 3, 512, bottomY - 2);
+               } else {
+                  do Screen.drawRectangle(x + 2, bottomY - 3, x + 14, bottomY - 2);
+               }
+            }
+            // Row 7: wider
+            if ((x + 1) < 512) {
+               if ((x + 15) > 511) {
+                  do Screen.drawRectangle(x + 1, bottomY - 2, 512, bottomY - 1);
+               } else {
+                  do Screen.drawRectangle(x + 1, bottomY - 2, x + 15, bottomY - 1);
+               }
+            }
+            // Row 8 (base): full width
+            if (x < 512) {
+               if ((x + 16) > 511) {
+                  do Screen.drawRectangle(x, bottomY - 1, 512, bottomY);
+               } else {
+                  do Screen.drawRectangle(x, bottomY - 1, x + 16, bottomY);
+               }
+            }
+            // Row 9 (base): full width
+            if (x < 512) {
+               if ((x + 16) > 511) {
+                  do Screen.drawRectangle(x, bottomY, 512, 256);
+               } else {
+                  do Screen.drawRectangle(x, bottomY, x + 16, 256);
+               }
+            }
+         }
+         let x = x + 16;
+      }
+      return;
+   }
+
 }
 
 

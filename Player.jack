@@ -116,20 +116,21 @@ class Player {
    }
 
    // hitbox helpers (rectangle around the drawn pterodactyl)
+   // Increased hitbox for better collision detection
    method int hitLeft() {
-      // hitbox más pequeña: solo el cuerpo (sin alas)
-      return xPos;
+      // Expanded hitbox to include more of the sprite
+      return xPos - 2;
    }
 
    method int hitRight() {
-      return xPos + 10;
+      return xPos + 16;
    }
 
    method int hitTop() {
-      return yPos;
+      return yPos - 2;
    }
 
    method int hitBottom() {
-      return yPos + 4;
+      return yPos + 12;
    }
 }

@@ -8,6 +8,8 @@ class Game {
    field Meteorito meteorito1;
    field Meteorito meteorito2;
    field Meteorito meteorito3;
+   field Meteorito meteorito4;
+   field Meteorito meteorito5;
    // internal states
    field char key;      
    field char last_key;
@@ -19,6 +21,8 @@ class Game {
    field int frames1;
    field int frameCounter;
    field Array info;
+   // spikes position for scrolling effect
+   field int spikesX;
 
    constructor Game new(int d) {
       let delay = d;
@@ -28,10 +32,14 @@ class Game {
       // create meteoritos starting from the right side of the screen
       // Position them with large spacing so they appear independently, not in groups
       // Max xPos is 491 (since width=20, 491+20=511 is the screen limit)
+      // Different baseY values ensure different sprite types for visual variety
       let meteorito1 = Meteorito.new(491, 100);
-      let meteorito2 = Meteorito.new(300, 150);
-      let meteorito3 = Meteorito.new(100, 80);
+      let meteorito2 = Meteorito.new(400, 151);
+      let meteorito3 = Meteorito.new(300, 80);
+      let meteorito4 = Meteorito.new(200, 120);
+      let meteorito5 = Meteorito.new(100, 170);
       let frameCounter = 0;
+      let spikesX = 0;
       let info = Array.new(6);
       let info[0] = "ET:";
       let info[1] = " (";
@@ -49,6 +57,8 @@ class Game {
       do meteorito1.dispose();
       do meteorito2.dispose();
       do meteorito3.dispose();
+      do meteorito4.dispose();
+      do meteorito5.dispose();
       do info.dispose();
       do Memory.deAlloc(this);
       return;
@@ -73,6 +83,10 @@ class Game {
             let first_jump = false;
             // clear screen to start playing
             do Screen.clearScreen();
+            // Draw spikes at top and bottom (initial position)
+            let spikesX = 0;
+            do SpriteManager.draw_top_spikes(0);
+            do SpriteManager.draw_bottom_spikes(0);
          }
       } else {
          // debug controls: (decrease or increase the time between frames)
@@ -87,27 +101,62 @@ class Game {
 
    // update all active objects every frame
    method void refresh() {
+      var int playerY;
+      var int playerBottom;
       // update player animation
       do player.update();  
       // update the game sprites if started
       if ((~first_jump)) { 
+         // Clear spikes areas before updating (top: y=0-10, bottom: y=245-255)
+         do Screen.setColor(false);
+         do Screen.drawRectangle(0, 0, 512, 11);
+         do Screen.drawRectangle(0, 245, 512, 256);
+         // Update spikes position (move from right to left, same speed as meteoritos: 2 pixels per frame)
+         let spikesX = spikesX - 2;
+         // Reset spikes position when they scroll off screen (every 16 pixels, since spike pattern repeats every 16)
+         if (spikesX < -16) {
+            let spikesX = spikesX + 16;
+         }
          // clear previous positions before updating
          do meteorito1.clear();
          do meteorito2.clear();
          do meteorito3.clear();
+         do meteorito4.clear();
+         do meteorito5.clear();
          // update meteorito positions (move from right to left)
          do meteorito1.update();
          do meteorito2.update();
          do meteorito3.update();
+         do meteorito4.update();
+         do meteorito5.update();
+         // Check if any meteorito exited the screen and increment score
+         if (meteorito1.justExited() = 2) {
+            do score.increment();
+         }
+         if (meteorito2.justExited() = 2) {
+            do score.increment();
+         }
+         if (meteorito3.justExited() = 2) {
+            do score.increment();
+         }
+         if (meteorito4.justExited() = 2) {
+            do score.increment();
+         }
+         if (meteorito5.justExited() = 2) {
+            do score.increment();
+         }
+         // draw spikes at new position (scrolling effect)
+         do SpriteManager.draw_top_spikes(spikesX);
+         do SpriteManager.draw_bottom_spikes(spikesX);
          // draw meteoritos at new positions
          do meteorito1.draw();
          do meteorito2.draw();
          do meteorito3.draw();
-         // redraw score counter only every 10 frames to reduce memory usage
+         do meteorito4.draw();
+         do meteorito5.draw();
+         // Update frame counter (score is tracked but not displayed during gameplay)
          let frameCounter = frameCounter + 1;
-         if ((frameCounter & 15) = 0) {
-            do score.show();
-         }
+         // Score will be shown in game over screen, not during gameplay
          // check collisions with meteoritos
          if (meteorito1.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
             let exit = true;
@@ -116,6 +165,48 @@ class Game {
             let exit = true;
          }
          if (meteorito3.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
+            let exit = true;
+         }
+         if (meteorito4.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
+            let exit = true;
+         }
+         if (meteorito5.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
+            let exit = true;
+         }
+         // check collisions with top and bottom spikes
+         // Top spikes: y=0 to y=10
+         // Player hitbox top overlaps with top spikes area
+         if (player.hitTop() < 10) {
+            let exit = true;
+         }
+         // Bottom spikes: y=245 to y=255
+         // Check if player's hitbox overlaps with bottom spikes area
+         // Player hitbox: hitTop() = yPos - 2, hitBottom() = yPos + 12
+         // Spikes area: y=245 to y=255
+         // Player movement limit: yPos < (221-yVel), so max yPos is around 220-221
+         // With hitBottom() = yPos + 12, max hitBottom() would be 232-233 (below spikes at y=245)
+         // However, visually the player appears to touch spikes when at max position
+         // So we need to detect when player is at or near the bottom limit
+         let playerY = player.y();
+         let playerBottom = player.hitBottom();
+         // Primary check: if player's bottom edge reaches or exceeds spike area (y=245)
+         if (~(playerBottom < 245)) {
+            let exit = true;
+         }
+         // Secondary check: if player Y position is at or above spike area
+         if (~(playerY < 245)) {
+            let exit = true;
+         }
+         // Tertiary check: if player is at maximum downward position (near movement limit)
+         // Player max Y is around 220-221, so if yPos >= 218, player is very close to bottom
+         // This should trigger collision when player visually appears to touch spikes
+         if (playerY > 217) {
+            let exit = true;
+         }
+         // Quaternary check: if player's hitBottom() is close to spikes (within 20 pixels of spike area)
+         // Spike area starts at y=245, so if hitBottom() > 225, player is getting close
+         // This ensures we catch the collision when player is visually near spikes
+         if (playerBottom > 225) {
             let exit = true;
          }
       }
@@ -174,7 +265,7 @@ class Game {
       return;
    }
 
-   // Draw large "GAME OVER" text centered on screen
+   // Draw large "GAME OVER" text centered on screen with final score
    method void drawGameOver() {
       var int startX;
       var int startY;
@@ -184,6 +275,7 @@ class Game {
       var int textHeight;
       var int centerX;
       var int centerY;
+      var int finalScore;
       let letterWidth = 30;
       let letterHeight = 40;
       // Calculate text width: 4 letters * 30 + 3 spaces * 10 = 150
@@ -258,6 +350,25 @@ class Game {
       do Screen.drawRectangle(startX, startY+17, startX+letterWidth-5, startY+22);
       do Screen.drawRectangle(startX+letterWidth-8, startY+20, startX+letterWidth-3, startY+letterHeight);
       
+      // Draw final score below "GAME OVER"
+      // Position: below the "OVER" line, centered horizontally
+      // Get final score
+      let finalScore = score.value();
+      // Position text below "GAME OVER"
+      // "GAME" is at centerY = 80, height = 40, so ends at y = 120
+      // "OVER" starts at centerY + letterHeight + 15 = 80 + 40 + 15 = 135
+      // "OVER" ends at y = 135 + 40 = 175
+      // Text rows are approximately 11 pixels tall
+      // Row 12 is at y=132 (between GAME and OVER - wrong!)
+      // Row 16 is at y=176 (just below OVER)
+      // Use row 17 to give some spacing below "OVER"
+      // Center horizontally: screen has 64 columns (0-63), "Score: " is 7 chars
+      // Assuming score can be up to 5 digits, total is ~12 chars
+      // Center position: (64 - 12) / 2 = 26
+      do Output.moveCursor(17, 26);
+      do Output.printString("Score: ");
+      do Output.printInt(finalScore);
+      
       return;
    }
 
@@ -275,6 +386,9 @@ class Game {
 
       // draw the introductory messages (text-only, to keep SpriteManager small)
       do Screen.clearScreen();
+      // Draw spikes at top and bottom (initial position)
+      do SpriteManager.draw_top_spikes(0);
+      do SpriteManager.draw_bottom_spikes(0);
       do Output.moveCursor(5, 10);
       do Output.printString("FLAPPY DINO");
       do Output.moveCursor(7, 10);
@@ -285,8 +399,12 @@ class Game {
          // game logic and render
          do handle_input();
          do refresh();
-         // handle profiling, clock and delays
-         do render_vitals();
+         // Update frame counter (but don't display during gameplay)
+         let frames1 = frames1 + 1;
+         // Prevent overflow: reset if frames1 becomes too large
+         if (frames1 > 30000) {
+            let frames1 = 0;
+         }
          do Sys.wait(delay);
       }
       if ((~quit)) { // write "Game Over" if allowed to restart (not quitting)
@@ -311,12 +429,19 @@ class Game {
    // recycle already allocated objects upon restart
    method void reset() {
       do Screen.clearScreen();
+      // Reset spikes position
+      let spikesX = 0;
+      // Draw spikes at top and bottom
+      do SpriteManager.draw_top_spikes(0);
+      do SpriteManager.draw_bottom_spikes(0);
       do player.reset(8, 128);
       do score.reset();
       // reset meteoritos to their initial positions (right side of screen, spaced apart)
       do meteorito1.reset(491, 100);
-      do meteorito2.reset(300, 150);
-      do meteorito3.reset(100, 80);
+      do meteorito2.reset(400, 151);
+      do meteorito3.reset(300, 80);
+      do meteorito4.reset(200, 120);
+      do meteorito5.reset(100, 170);
       return;
    }
 }
