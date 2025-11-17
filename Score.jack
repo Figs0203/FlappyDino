@@ -17,9 +17,20 @@ class Score {
 
    // shows score as text to avoid heavy digit sprites
    method void show() {
+      var int safeTotal;
+      // Ensure total is within safe range to prevent ERR6e errors
+      if (total < 0) {
+         let safeTotal = 0;
+      } else {
+         if (total > 32767) {
+            let safeTotal = 32767;
+         } else {
+            let safeTotal = total;
+         }
+      }
       do Output.moveCursor(0, 0);
       do Output.printString("Score: ");
-      do Output.printInt(total);
+      do Output.printInt(safeTotal);
       return;
    }
 

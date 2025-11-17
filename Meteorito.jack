@@ -6,6 +6,7 @@ class Meteorito {
    field int height;
    field int speed;
    field int lastX;
+   field int baseY;
 
    constructor Meteorito new(int x, int y) {
       do reset(x, y);
@@ -77,6 +78,7 @@ class Meteorito {
    method void reset(int x, int y) {
       let xPos = x;
       let yPos = y;
+      let baseY = y;
       let width = 12;
       let height = 12;
       let speed = 2;
@@ -91,6 +93,10 @@ class Meteorito {
    }
 
    method void update() {
+      var int offsetX;
+      var int yVariation;
+      var int yOffset;
+      var int safeBaseY;
       // Remember last position before moving
       let lastX = xPos;
       // Move meteorito from right to left
@@ -99,8 +105,57 @@ class Meteorito {
       // Make sure xPos + width doesn't exceed screen width (max 511)
       // Screen is 512 pixels wide (0-511), so max xPos is 499 (499+12=511)
       if ((xPos + width) < 0) {
-         let xPos = 499; // Reset to right side of screen (499+12=511, screen is 0-511)
-         let lastX = 499; // Also update lastX to avoid clearing at negative position
+         // Vary X position based on baseY to space out meteoritos
+         // Each meteorito gets a different starting X based on its baseY
+         // This creates independent appearance patterns
+         // Use simpler calculation to avoid arithmetic errors
+         let offsetX = baseY & 63; // Offset 0-63 pixels (safer than multiplication)
+         let xPos = 499 - offsetX; // Start from right, with variation
+         // Ensure xPos doesn't go below 0
+         if (xPos < 0) {
+            let xPos = 0;
+         }
+         // Ensure xPos + width doesn't exceed 511
+         if ((xPos + width) > 511) {
+            let xPos = 499;
+         }
+         let lastX = xPos; // Also update lastX to avoid clearing at negative position
+         // Vary the Y position based on baseY to create independent patterns
+         // Use only baseY to avoid any arithmetic that could cause overflow
+         // Limit baseY to safe range first
+         if (baseY > 255) {
+            let safeBaseY = 255;
+         } else {
+            if (baseY < 0) {
+               let safeBaseY = 0;
+            } else {
+               let safeBaseY = baseY;
+            }
+         }
+         // Use only safeBaseY for variation, no addition with xPos
+         let yVariation = safeBaseY & 7; // Create variation: 0-7 range (very safe, no addition)
+         // Map yVariation to offset range using simple if-else
+         if (yVariation > 5) {
+            let yOffset = 15;
+         } else {
+            if (yVariation > 3) {
+               let yOffset = 5;
+            } else {
+               if (yVariation > 1) {
+                  let yOffset = -5;
+               } else {
+                  let yOffset = -15;
+               }
+            }
+         }
+         let yPos = safeBaseY + yOffset; // Vary around safeBaseY
+         // Ensure yPos stays within screen bounds (0-255, considering height=12, max yPos=243)
+         if (yPos > 243) {
+            let yPos = 243;
+         }
+         if (yPos < 0) {
+            let yPos = 0;
+         }
       }
       return;
    }

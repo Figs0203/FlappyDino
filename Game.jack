@@ -17,6 +17,7 @@ class Game {
    field boolean quit;
    // profiling
    field int frames1;
+   field int frameCounter;
    field Array info;
 
    constructor Game new(int d) {
@@ -25,11 +26,12 @@ class Game {
       let player = Player.new(8, 128);
       let score = Score.new();
       // create meteoritos starting from the right side of the screen
-      // Position them far to the right to give player time to react
+      // Position them with large spacing so they appear independently, not in groups
       // Max xPos is 499 (since width=12, 499+12=511 is the screen limit)
       let meteorito1 = Meteorito.new(499, 100);
-      let meteorito2 = Meteorito.new(480, 150);
-      let meteorito3 = Meteorito.new(460, 80);
+      let meteorito2 = Meteorito.new(300, 150);
+      let meteorito3 = Meteorito.new(100, 80);
+      let frameCounter = 0;
       let info = Array.new(6);
       let info[0] = "ET:";
       let info[1] = " (";
@@ -101,8 +103,11 @@ class Game {
          do meteorito1.draw();
          do meteorito2.draw();
          do meteorito3.draw();
-         // redraw score counter
-         do score.show();
+         // redraw score counter only every 10 frames to reduce memory usage
+         let frameCounter = frameCounter + 1;
+         if ((frameCounter & 15) = 0) {
+            do score.show();
+         }
          // check collisions with meteoritos
          if (meteorito1.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
             let exit = true;
@@ -119,24 +124,53 @@ class Game {
 
    // "clock (delay)" printer (profiling tool)
    method void render_vitals() {
+         var int safeFrames1;
+         var int safeDelay;
          let frames1 = frames1 + 1;
-         if (frames1 < 0) { 
+         // Prevent overflow: reset if frames1 becomes too large or negative
+         // Max safe value for 16-bit signed int is 32767, reset before reaching it
+         if (frames1 > 30000) {
             let frames1 = 0;
-            if (first_jump) {do Output.moveCursor(21,0);} 
-            else {do Output.moveCursor(22,0);}
-            do Output.printString(info[5]);
          }
-         do Output.moveCursor(22,0);
-         if (first_jump) {
-            do Output.printString(info[4]);
-            do Output.moveCursor(21,0);
+         // Only update display every 30 frames to reduce memory usage
+         if ((frames1 & 31) = 0) {
+            if (frames1 < 0) { 
+               let frames1 = 0;
+               if (first_jump) {do Output.moveCursor(21,0);} 
+               else {do Output.moveCursor(22,0);}
+               do Output.printString(info[5]);
+            }
+            do Output.moveCursor(22,0);
+            if (first_jump) {
+               do Output.printString(info[4]);
+               do Output.moveCursor(21,0);
+            }
+            // Ensure values are within safe range to prevent ERR6e errors
+            if (frames1 < 0) {
+               let safeFrames1 = 0;
+            } else {
+               if (frames1 > 32767) {
+                  let safeFrames1 = 32767;
+               } else {
+                  let safeFrames1 = frames1;
+               }
+            }
+            if (delay < 0) {
+               let safeDelay = 0;
+            } else {
+               if (delay > 32767) {
+                  let safeDelay = 32767;
+               } else {
+                  let safeDelay = delay;
+               }
+            }
+            do Output.printString(info[0]);
+            do Output.printInt(safeFrames1);
+            do Output.printString(info[1]);
+            do Output.printInt(safeDelay);
+            do Output.printString(info[2]);
+            do Output.printString(info[3]);
          }
-         do Output.printString(info[0]);
-         do Output.printInt(frames1);
-         do Output.printString(info[1]);
-         do Output.printInt(delay);
-         do Output.printString(info[2]);
-         do Output.printString(info[3]);
       return;
    }
 
@@ -237,6 +271,7 @@ class Game {
       let reset = false;
       let quit = false;
       let frames1 = 0;
+      let frameCounter = 0;
 
       // draw the introductory messages (text-only, to keep SpriteManager small)
       do Screen.clearScreen();
@@ -278,10 +313,10 @@ class Game {
       do Screen.clearScreen();
       do player.reset(8, 128);
       do score.reset();
-      // reset meteoritos to their initial positions (right side of screen)
+      // reset meteoritos to their initial positions (right side of screen, spaced apart)
       do meteorito1.reset(499, 100);
-      do meteorito2.reset(480, 150);
-      do meteorito3.reset(460, 80);
+      do meteorito2.reset(300, 150);
+      do meteorito3.reset(100, 80);
       return;
    }
 }
