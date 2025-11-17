@@ -4,10 +4,10 @@ class Game {
    field int delay;
    // objects
    field Player player;
-   field Pipe pipe1;
-   field Pipe pipe2;
-   field Pipe pipe3;
    field Score score;
+   field Meteorito meteorito1;
+   field Meteorito meteorito2;
+   field Meteorito meteorito3;
    // internal states
    field char key;      
    field char last_key;
@@ -15,7 +15,6 @@ class Game {
    field boolean exit;
    field boolean reset;
    field boolean quit;
-   field int pipe_interaction;
    // profiling
    field int frames1;
    field Array info;
@@ -24,11 +23,13 @@ class Game {
       let delay = d;
       // initialize (allocate) objects
       let player = Player.new(8, 128);
-      do Pipe.init(2, 50);
-      let pipe1 = Pipe.new(614+((560/3)*0), 128);
-      let pipe2 = Pipe.new(614+((560/3)*1), 128);
-      let pipe3 = Pipe.new(614+((560/3)*2), 128);
       let score = Score.new();
+      // create meteoritos starting from the right side of the screen
+      // Position them far to the right to give player time to react
+      // Max xPos is 499 (since width=12, 499+12=511 is the screen limit)
+      let meteorito1 = Meteorito.new(499, 100);
+      let meteorito2 = Meteorito.new(480, 150);
+      let meteorito3 = Meteorito.new(460, 80);
       let info = Array.new(6);
       let info[0] = "ET:";
       let info[1] = " (";
@@ -42,10 +43,10 @@ class Game {
    method void dispose() {
       // dispose of (deallocate) objects
       do player.dispose();
-      do pipe1.dispose();
-      do pipe2.dispose();
-      do pipe3.dispose();
       do score.dispose();
+      do meteorito1.dispose();
+      do meteorito2.dispose();
+      do meteorito3.dispose();
       do info.dispose();
       do Memory.deAlloc(this);
       return;
@@ -68,8 +69,7 @@ class Game {
          if (first_jump) {
             // first jump (spacebar click) starts the game
             let first_jump = false;
-            // replace title and delete instruction messages
-            do LCGRandom.setSeed(frames1);
+            // clear screen to start playing
             do Screen.clearScreen();
          }
       } else {
@@ -82,17 +82,6 @@ class Game {
       return;
    }
 
-   // handler for pipe interactions
-   method void handle_pipe(int pipe_interaction) {
-      if (pipe_interaction=2) { // Collision
-         let exit = true;
-      } else {
-         if (pipe_interaction=1) { // Passing by
-            do score.increment();
-         }
-      }
-      return;
-   }
 
    // update all active objects every frame
    method void refresh() {
@@ -100,16 +89,30 @@ class Game {
       do player.update();  
       // update the game sprites if started
       if ((~first_jump)) { 
-         // update pipes (they are moved every frame)
-         do pipe1.update();
-         do pipe2.update();
-         do pipe3.update();
-         // redraw score counter (in case it is behind pipes)
+         // clear previous positions before updating
+         do meteorito1.clear();
+         do meteorito2.clear();
+         do meteorito3.clear();
+         // update meteorito positions (move from right to left)
+         do meteorito1.update();
+         do meteorito2.update();
+         do meteorito3.update();
+         // draw meteoritos at new positions
+         do meteorito1.draw();
+         do meteorito2.draw();
+         do meteorito3.draw();
+         // redraw score counter
          do score.show();
-         // handle player-pipe colision (everyone moves/updates every frame)
-         do handle_pipe(pipe1.is_player_inside_me(player.hitLeft(),player.hitRight(),player.hitTop(),player.hitBottom()));
-         do handle_pipe(pipe2.is_player_inside_me(player.hitLeft(),player.hitRight(),player.hitTop(),player.hitBottom()));
-         do handle_pipe(pipe3.is_player_inside_me(player.hitLeft(),player.hitRight(),player.hitTop(),player.hitBottom()));
+         // check collisions with meteoritos
+         if (meteorito1.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
+            let exit = true;
+         }
+         if (meteorito2.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
+            let exit = true;
+         }
+         if (meteorito3.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
+            let exit = true;
+         }
       }
       return;
    }
@@ -134,6 +137,93 @@ class Game {
          do Output.printInt(delay);
          do Output.printString(info[2]);
          do Output.printString(info[3]);
+      return;
+   }
+
+   // Draw large "GAME OVER" text centered on screen
+   method void drawGameOver() {
+      var int startX;
+      var int startY;
+      var int letterWidth;
+      var int letterHeight;
+      var int textWidth;
+      var int textHeight;
+      var int centerX;
+      var int centerY;
+      let letterWidth = 30;
+      let letterHeight = 40;
+      // Calculate text width: 4 letters * 30 + 3 spaces * 10 = 150
+      let textWidth = 150;
+      // Calculate text height: 40 (line1) + 15 (spacing) + 40 (line2) = 95
+      let textHeight = 95;
+      // Center horizontally: (512 - 150) / 2 = 181
+      let centerX = 181;
+      // Center vertically: (256 - 95) / 2 = 80
+      let centerY = 80;
+      let startX = centerX;
+      let startY = centerY;
+      do Screen.setColor(true);
+      
+      // Draw "GAME" - first line
+      // G
+      do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
+      do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
+      do Screen.drawRectangle(startX, startY+letterHeight-5, startX+letterWidth, startY+letterHeight);
+      do Screen.drawRectangle(startX+letterWidth-5, startY+15, startX+letterWidth, startY+letterHeight);
+      do Screen.drawRectangle(startX+15, startY+20, startX+letterWidth-5, startY+25);
+      
+      // A (after G, with spacing)
+      let startX = startX + letterWidth + 10;
+      do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
+      do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+letterHeight);
+      do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
+      do Screen.drawRectangle(startX, startY+18, startX+letterWidth, startY+23);
+      
+      // M (after A)
+      let startX = startX + letterWidth + 10;
+      do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
+      do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+letterHeight);
+      do Screen.drawRectangle(startX+12, startY, startX+18, startY+20);
+      do Screen.drawRectangle(startX+letterWidth-18, startY, startX+letterWidth-12, startY+20);
+      
+      // E (after M)
+      let startX = startX + letterWidth + 10;
+      do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
+      do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
+      do Screen.drawRectangle(startX, startY+17, startX+letterWidth-5, startY+22);
+      do Screen.drawRectangle(startX, startY+letterHeight-5, startX+letterWidth, startY+letterHeight);
+      
+      // Draw "OVER" - second line (centered)
+      let startX = centerX;
+      let startY = startY + letterHeight + 15;
+      
+      // O
+      do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
+      do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+letterHeight);
+      do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
+      do Screen.drawRectangle(startX, startY+letterHeight-5, startX+letterWidth, startY+letterHeight);
+      
+      // V (after O)
+      let startX = startX + letterWidth + 10;
+      do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight-10);
+      do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+letterHeight-10);
+      do Screen.drawRectangle(startX+12, startY+letterHeight-15, startX+18, startY+letterHeight);
+      
+      // E (after V)
+      let startX = startX + letterWidth + 10;
+      do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
+      do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
+      do Screen.drawRectangle(startX, startY+17, startX+letterWidth-5, startY+22);
+      do Screen.drawRectangle(startX, startY+letterHeight-5, startX+letterWidth, startY+letterHeight);
+      
+      // R (after E)
+      let startX = startX + letterWidth + 10;
+      do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
+      do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+20);
+      do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
+      do Screen.drawRectangle(startX, startY+17, startX+letterWidth-5, startY+22);
+      do Screen.drawRectangle(startX+letterWidth-8, startY+20, startX+letterWidth-3, startY+letterHeight);
+      
       return;
    }
 
@@ -165,8 +255,9 @@ class Game {
          do Sys.wait(delay);
       }
       if ((~quit)) { // write "Game Over" if allowed to restart (not quitting)
-         do Output.moveCursor(10, 10);
-         do Output.printString("GAME OVER");
+         // Clear screen and draw large centered "GAME OVER"
+         do Screen.clearScreen();
+         do drawGameOver();
       }
       // wait to confirm reset, or to quit
       while ((~reset)) {
@@ -186,10 +277,11 @@ class Game {
    method void reset() {
       do Screen.clearScreen();
       do player.reset(8, 128);
-      do pipe1.reset(614+((560/3)*0), 128);
-      do pipe2.reset(614+((560/3)*1), 128);
-      do pipe3.reset(614+((560/3)*2), 128);
       do score.reset();
+      // reset meteoritos to their initial positions (right side of screen)
+      do meteorito1.reset(499, 100);
+      do meteorito2.reset(480, 150);
+      do meteorito3.reset(460, 80);
       return;
    }
 }

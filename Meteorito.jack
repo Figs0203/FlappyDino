@@ -1,0 +1,108 @@
+
+class Meteorito {
+   field int xPos;
+   field int yPos;
+   field int width;
+   field int height;
+   field int speed;
+   field int lastX;
+
+   constructor Meteorito new(int x, int y) {
+      do reset(x, y);
+      return this;
+   }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   method void draw() {
+      // Only draw if position is within valid screen bounds (0-511 for x, 0-255 for y)
+      // xPos + width must be <= 511, so xPos <= 499 (since width = 12)
+      // Using ~(x < 0) for x >= 0, and ~((xPos + width) > 511) for (xPos + width) <= 511
+      if ((~(xPos < 0)) & (~((xPos + width) > 511))) {
+         if ((~(yPos < 0)) & (~((yPos + height) > 255))) {
+      do Screen.setColor(true);
+      // Main body (circular approximation)
+      do Screen.drawRectangle(xPos, yPos, xPos+width, yPos+height);
+      // Add some detail to make it look more like a meteor
+      do Screen.drawRectangle(xPos+2, yPos+2, xPos+width-2, yPos+height-2);
+         }
+      }
+      return;
+   }
+
+   method void clear() {
+      // Clear the area where meteorito was drawn (at last position)
+      // Only clear if lastX is within valid screen bounds
+      // Using ~(x < 0) for x >= 0, and ~((lastX + width) > 511) for (lastX + width) <= 511
+      if ((~(lastX < 0)) & (~((lastX + width) > 511))) {
+         if ((~(yPos < 0)) & (~((yPos + height) > 255))) {
+      do Screen.setColor(false);
+            do Screen.drawRectangle(lastX, yPos, lastX+width, yPos+height);
+         }
+      }
+      return;
+   }
+
+   // Check collision with player rectangle
+   // Returns: 2 = collision, 0 = no collision
+   method int is_colliding(int playerLeft, int playerRight, int playerTop, int playerBottom) {
+      // Check if player rectangle overlaps with meteorito rectangle
+      if ((playerRight > xPos) & (playerLeft < (xPos+width))) {
+         if ((playerBottom > yPos) & (playerTop < (yPos+height))) {
+            return 2; // collision
+         }
+      }
+      return 0; // no collision
+   }
+
+   method int x() {
+      return xPos;
+   }
+
+   method int y() {
+      return yPos;
+   }
+
+   method int w() {
+      return width;
+   }
+
+   method int h() {
+      return height;
+   }
+
+   method void reset(int x, int y) {
+      let xPos = x;
+      let yPos = y;
+      let width = 12;
+      let height = 12;
+      let speed = 2;
+      let lastX = x;
+      return;
+   }
+
+   method void setPosition(int x, int y) {
+      let xPos = x;
+      let yPos = y;
+      return;
+   }
+
+   method void update() {
+      // Remember last position before moving
+      let lastX = xPos;
+      // Move meteorito from right to left
+      let xPos = xPos - speed;
+      // If meteorito goes off the left side, reset it to the right side
+      // Make sure xPos + width doesn't exceed screen width (max 511)
+      // Screen is 512 pixels wide (0-511), so max xPos is 499 (499+12=511)
+      if ((xPos + width) < 0) {
+         let xPos = 499; // Reset to right side of screen (499+12=511, screen is 0-511)
+         let lastX = 499; // Also update lastX to avoid clearing at negative position
+      }
+      return;
+   }
+}
+
