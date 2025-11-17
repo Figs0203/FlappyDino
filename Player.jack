@@ -1,11 +1,10 @@
-
 class Player {
    field int xPos;
    field int yPos;
    field int yVel;
    field int position;
-   field int skin; // animation frame (0/1 for pterodactyl wings)
-   field int tick; // internal clock
+   field int skin; // frame de la animacion
+   field int tick; // reloj interno
    field boolean gravity; 
    field boolean animation_direction_up;
    field int lastX;
@@ -30,21 +29,20 @@ class Player {
    }
 
    method void tick() {
-      // update skin and gravity every couple ticks
-      // remember last position for clearing the previous sprite
+      // actualizar sprite y gravedad, recordar posicion 
       let lastX = xPos;
       let lastY = yPos;
       let tick = tick + 1;
       if (tick = 5) {
          let tick = 0;
-         // two-frame animation: 0 <-> 1
+         // animacion de las 2 frames del dino
          if (skin = 0) { let skin = 1; }
          else { let skin = 0; }
          if (yVel < 6) {
             let yVel = yVel + 1;
          }
       }
-      // apply gravity to position (if on)
+      // gravedad
       if (gravity) {
          if (yVel > 0) {
             if (yPos < (221-yVel)) {
@@ -59,7 +57,7 @@ class Player {
                let yVel = 0;
             }
          }
-      // apply animation (gravity is off)
+
       }  else {
          if (animation_direction_up) {
             if ((tick = 1)) {
@@ -77,7 +75,6 @@ class Player {
    }
 
    method void render() {
-      // pterodactyl sprite (two-wing animation)
       do SpriteManager.clear_pterodactilobw(lastX, lastY);
       if (skin = 0) {
          do SpriteManager.draw_pterodactilobw(xPos, yPos);
@@ -115,10 +112,8 @@ class Player {
       return;
    }
 
-   // hitbox helpers (rectangle around the drawn pterodactyl)
-   // Increased hitbox for better collision detection
+
    method int hitLeft() {
-      // Expanded hitbox to include more of the sprite
       return xPos - 2;
    }
 
