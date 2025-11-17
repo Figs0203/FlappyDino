@@ -1,8 +1,8 @@
 
 class Game {
-   // game speed (throttling)
+   // velocidad del juego
    field int delay;
-   // objects
+   // objetos
    field Player player;
    field Score score;
    field Meteorito meteorito1;
@@ -10,29 +10,26 @@ class Game {
    field Meteorito meteorito3;
    field Meteorito meteorito4;
    field Meteorito meteorito5;
-   // internal states
+   // estados
    field char key;      
    field char last_key;
    field boolean first_jump;
    field boolean exit;
    field boolean reset;
    field boolean quit;
-   // profiling
+   // perfilado
    field int frames1;
    field int frameCounter;
    field Array info;
-   // spikes position for scrolling effect
+   // pinchos
    field int spikesX;
 
    constructor Game new(int d) {
       let delay = d;
-      // initialize (allocate) objects
+      // inicializar objetos
       let player = Player.new(8, 128);
       let score = Score.new();
-      // create meteoritos starting from the right side of the screen
-      // Position them with large spacing so they appear independently, not in groups
-      // Max xPos is 491 (since width=20, 491+20=511 is the screen limit)
-      // Different baseY values ensure different sprite types for visual variety
+      // crea meteoritos con separaracion (no spawneat todos juntos) y diferentes sprites
       let meteorito1 = Meteorito.new(491, 100);
       let meteorito2 = Meteorito.new(400, 151);
       let meteorito3 = Meteorito.new(300, 80);
@@ -51,7 +48,7 @@ class Game {
    }
 
    method void dispose() {
-      // dispose of (deallocate) objects
+      // objetos chao
       do player.dispose();
       do score.dispose();
       do meteorito1.dispose();
@@ -64,7 +61,7 @@ class Game {
       return;
    }
 
-   // handle game logic (keyboard input)
+   // input del teclado
    method void handle_input() {
       let key = Keyboard.keyPressed();
       //
@@ -79,17 +76,17 @@ class Game {
       if ((key = 32) & (~(last_key=32))) { // space
          do player.jump();
          if (first_jump) {
-            // first jump (spacebar click) starts the game
+            // el primer click empieza el juego
             let first_jump = false;
-            // clear screen to start playing
+            // clear a la pantalla
             do Screen.clearScreen();
-            // Draw spikes at top and bottom (initial position)
+            // pinchos arriba y abajo
             let spikesX = 0;
             do SpriteManager.draw_top_spikes(0);
             do SpriteManager.draw_bottom_spikes(0);
          }
       } else {
-         // debug controls: (decrease or increase the time between frames)
+         // debug que sube o baja el tiempo entre las frames
          if (((key = 130) & (~(last_key=130))) & (delay > 0)) { let delay = delay - 1; }   // left arrow
          if ((key = 132) & (~(last_key=132))) { let delay = delay + 1; }   // right arrow
       }
@@ -99,37 +96,37 @@ class Game {
    }
 
 
-   // update all active objects every frame
+   // actualiza los objetos cada frame
    method void refresh() {
       var int playerY;
       var int playerBottom;
-      // update player animation
+      // animacion del jugador
       do player.update();  
-      // update the game sprites if started
+      // actualizar sprites cuando empieza
       if ((~first_jump)) { 
-         // Clear spikes areas before updating (top: y=0-10, bottom: y=245-255)
+         // hacer clear a las areas de los pinchos antes de update
          do Screen.setColor(false);
          do Screen.drawRectangle(0, 0, 512, 11);
          do Screen.drawRectangle(0, 245, 512, 256);
-         // Update spikes position (move from right to left, same speed as meteoritos: 2 pixels per frame)
+         // actualiza los mteoritos
          let spikesX = spikesX - 2;
-         // Reset spikes position when they scroll off screen (every 16 pixels, since spike pattern repeats every 16)
+         // resetea los pinchos cada 16 pixeles
          if (spikesX < -16) {
             let spikesX = spikesX + 16;
          }
-         // clear previous positions before updating
+         // clear a las posiciones antes de actualizar
          do meteorito1.clear();
          do meteorito2.clear();
          do meteorito3.clear();
          do meteorito4.clear();
          do meteorito5.clear();
-         // update meteorito positions (move from right to left)
+         // actualizar los meteoritos
          do meteorito1.update();
          do meteorito2.update();
          do meteorito3.update();
          do meteorito4.update();
          do meteorito5.update();
-         // Check if any meteorito exited the screen and increment score
+         // si el meteorito sale de la pantalla sube el puntaje
          if (meteorito1.justExited() = 2) {
             do score.increment();
          }
@@ -145,19 +142,18 @@ class Game {
          if (meteorito5.justExited() = 2) {
             do score.increment();
          }
-         // draw spikes at new position (scrolling effect)
+         // efecto scroll en pinchos
          do SpriteManager.draw_top_spikes(spikesX);
          do SpriteManager.draw_bottom_spikes(spikesX);
-         // draw meteoritos at new positions
+         // meteoritos en posiciones nuevas
          do meteorito1.draw();
          do meteorito2.draw();
          do meteorito3.draw();
          do meteorito4.draw();
          do meteorito5.draw();
-         // Update frame counter (score is tracked but not displayed during gameplay)
+         // frame  counter
          let frameCounter = frameCounter + 1;
-         // Score will be shown in game over screen, not during gameplay
-         // check collisions with meteoritos
+         // ver si se choca con meteoritos
          if (meteorito1.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
             let exit = true;
          }
@@ -173,39 +169,25 @@ class Game {
          if (meteorito5.is_colliding(player.hitLeft(), player.hitRight(), player.hitTop(), player.hitBottom()) = 2) {
             let exit = true;
          }
-         // check collisions with top and bottom spikes
-         // Top spikes: y=0 to y=10
-         // Player hitbox top overlaps with top spikes area
+         // ver si se choca con pinchos arriba
          if (player.hitTop() < 10) {
             let exit = true;
          }
-         // Bottom spikes: y=245 to y=255
-         // Check if player's hitbox overlaps with bottom spikes area
-         // Player hitbox: hitTop() = yPos - 2, hitBottom() = yPos + 12
-         // Spikes area: y=245 to y=255
-         // Player movement limit: yPos < (221-yVel), so max yPos is around 220-221
-         // With hitBottom() = yPos + 12, max hitBottom() would be 232-233 (below spikes at y=245)
-         // However, visually the player appears to touch spikes when at max position
-         // So we need to detect when player is at or near the bottom limit
+         // abajo
          let playerY = player.y();
          let playerBottom = player.hitBottom();
-         // Primary check: if player's bottom edge reaches or exceeds spike area (y=245)
          if (~(playerBottom < 245)) {
             let exit = true;
          }
-         // Secondary check: if player Y position is at or above spike area
+         // check secudario
          if (~(playerY < 245)) {
             let exit = true;
          }
-         // Tertiary check: if player is at maximum downward position (near movement limit)
-         // Player max Y is around 220-221, so if yPos >= 218, player is very close to bottom
-         // This should trigger collision when player visually appears to touch spikes
+         // check terciario
          if (playerY > 217) {
             let exit = true;
          }
-         // Quaternary check: if player's hitBottom() is close to spikes (within 20 pixels of spike area)
-         // Spike area starts at y=245, so if hitBottom() > 225, player is getting close
-         // This ensures we catch the collision when player is visually near spikes
+         // ultimo check
          if (playerBottom > 225) {
             let exit = true;
          }
@@ -213,17 +195,16 @@ class Game {
       return;
    }
 
-   // "clock (delay)" printer (profiling tool)
+   // delay del clock
    method void render_vitals() {
          var int safeFrames1;
          var int safeDelay;
          let frames1 = frames1 + 1;
-         // Prevent overflow: reset if frames1 becomes too large or negative
-         // Max safe value for 16-bit signed int is 32767, reset before reaching it
+         // prevenir overflow
          if (frames1 > 30000) {
             let frames1 = 0;
          }
-         // Only update display every 30 frames to reduce memory usage
+         // actualizar display cada 30 frames
          if ((frames1 & 31) = 0) {
             if (frames1 < 0) { 
                let frames1 = 0;
@@ -236,7 +217,7 @@ class Game {
                do Output.printString(info[4]);
                do Output.moveCursor(21,0);
             }
-            // Ensure values are within safe range to prevent ERR6e errors
+            // valores en rangos seguros para prevenir errores
             if (frames1 < 0) {
                let safeFrames1 = 0;
             } else {
@@ -265,7 +246,7 @@ class Game {
       return;
    }
 
-   // Draw large "GAME OVER" text centered on screen with final score
+   // GAME OVER cuando se pierde
    method void drawGameOver() {
       var int startX;
       var int startY;
@@ -278,19 +259,19 @@ class Game {
       var int finalScore;
       let letterWidth = 30;
       let letterHeight = 40;
-      // Calculate text width: 4 letters * 30 + 3 spaces * 10 = 150
+      // ancho del texto
       let textWidth = 150;
-      // Calculate text height: 40 (line1) + 15 (spacing) + 40 (line2) = 95
+      // alto del texto
       let textHeight = 95;
-      // Center horizontally: (512 - 150) / 2 = 181
+      // centrar horizontal
       let centerX = 181;
-      // Center vertically: (256 - 95) / 2 = 80
+      // centrar vertical
       let centerY = 80;
       let startX = centerX;
       let startY = centerY;
       do Screen.setColor(true);
       
-      // Draw "GAME" - first line
+      // GAME
       // G
       do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
       do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
@@ -298,28 +279,28 @@ class Game {
       do Screen.drawRectangle(startX+letterWidth-5, startY+15, startX+letterWidth, startY+letterHeight);
       do Screen.drawRectangle(startX+15, startY+20, startX+letterWidth-5, startY+25);
       
-      // A (after G, with spacing)
+      // A 
       let startX = startX + letterWidth + 10;
       do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
       do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+letterHeight);
       do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
       do Screen.drawRectangle(startX, startY+18, startX+letterWidth, startY+23);
       
-      // M (after A)
+      // M 
       let startX = startX + letterWidth + 10;
       do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
       do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+letterHeight);
       do Screen.drawRectangle(startX+12, startY, startX+18, startY+20);
       do Screen.drawRectangle(startX+letterWidth-18, startY, startX+letterWidth-12, startY+20);
       
-      // E (after M)
+      // E 
       let startX = startX + letterWidth + 10;
       do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
       do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
       do Screen.drawRectangle(startX, startY+17, startX+letterWidth-5, startY+22);
       do Screen.drawRectangle(startX, startY+letterHeight-5, startX+letterWidth, startY+letterHeight);
       
-      // Draw "OVER" - second line (centered)
+      // OVER
       let startX = centerX;
       let startY = startY + letterHeight + 15;
       
@@ -329,20 +310,20 @@ class Game {
       do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
       do Screen.drawRectangle(startX, startY+letterHeight-5, startX+letterWidth, startY+letterHeight);
       
-      // V (after O)
+      // V 
       let startX = startX + letterWidth + 10;
       do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight-10);
       do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+letterHeight-10);
       do Screen.drawRectangle(startX+12, startY+letterHeight-15, startX+18, startY+letterHeight);
       
-      // E (after V)
+      // E 
       let startX = startX + letterWidth + 10;
       do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
       do Screen.drawRectangle(startX, startY, startX+letterWidth, startY+5);
       do Screen.drawRectangle(startX, startY+17, startX+letterWidth-5, startY+22);
       do Screen.drawRectangle(startX, startY+letterHeight-5, startX+letterWidth, startY+letterHeight);
       
-      // R (after E)
+      // R 
       let startX = startX + letterWidth + 10;
       do Screen.drawRectangle(startX, startY, startX+5, startY+letterHeight);
       do Screen.drawRectangle(startX+letterWidth-5, startY, startX+letterWidth, startY+20);
@@ -350,21 +331,8 @@ class Game {
       do Screen.drawRectangle(startX, startY+17, startX+letterWidth-5, startY+22);
       do Screen.drawRectangle(startX+letterWidth-8, startY+20, startX+letterWidth-3, startY+letterHeight);
       
-      // Draw final score below "GAME OVER"
-      // Position: below the "OVER" line, centered horizontally
-      // Get final score
+      // mostrar el puntaje final
       let finalScore = score.value();
-      // Position text below "GAME OVER"
-      // "GAME" is at centerY = 80, height = 40, so ends at y = 120
-      // "OVER" starts at centerY + letterHeight + 15 = 80 + 40 + 15 = 135
-      // "OVER" ends at y = 135 + 40 = 175
-      // Text rows are approximately 11 pixels tall
-      // Row 12 is at y=132 (between GAME and OVER - wrong!)
-      // Row 16 is at y=176 (just below OVER)
-      // Use row 17 to give some spacing below "OVER"
-      // Center horizontally: screen has 64 columns (0-63), "Score: " is 7 chars
-      // Assuming score can be up to 5 digits, total is ~12 chars
-      // Center position: (64 - 12) / 2 = 26
       do Output.moveCursor(17, 26);
       do Output.printString("Score: ");
       do Output.printInt(finalScore);
@@ -372,9 +340,9 @@ class Game {
       return;
    }
 
-   // the main game control
+   // controles del juego
    method boolean run() {
-      // init all variables
+      // inicia variables
       let key = 0;
       let last_key = 0;
       let first_jump = true;
@@ -384,9 +352,7 @@ class Game {
       let frames1 = 0;
       let frameCounter = 0;
 
-      // draw the introductory messages (text-only, to keep SpriteManager small)
-      do Screen.clearScreen();
-      // Draw spikes at top and bottom (initial position)
+      // mensaje inicial y pinchos al principio
       do SpriteManager.draw_top_spikes(0);
       do SpriteManager.draw_bottom_spikes(0);
       do Output.moveCursor(5, 10);
@@ -394,25 +360,20 @@ class Game {
       do Output.moveCursor(7, 10);
       do Output.printString("Press SPACE to start");
 
-      // enter the play loop
+      // loop del juego
       while (~exit) {
-         // game logic and render
          do handle_input();
          do refresh();
-         // Update frame counter (but don't display during gameplay)
          let frames1 = frames1 + 1;
-         // Prevent overflow: reset if frames1 becomes too large
          if (frames1 > 30000) {
             let frames1 = 0;
          }
          do Sys.wait(delay);
       }
-      if ((~quit)) { // write "Game Over" if allowed to restart (not quitting)
-         // Clear screen and draw large centered "GAME OVER"
+      if ((~quit)) { // GAME OVER si si hace quit
          do Screen.clearScreen();
          do drawGameOver();
       }
-      // wait to confirm reset, or to quit
       while ((~reset)) {
          let key = Keyboard.keyPressed();
          if (key = 81) { // Q to quit
@@ -426,17 +387,17 @@ class Game {
       return true;
    }
 
-   // recycle already allocated objects upon restart
+   // reciclar objetos al reiniciar
    method void reset() {
       do Screen.clearScreen();
-      // Reset spikes position
+      // resetear pinchos
       let spikesX = 0;
-      // Draw spikes at top and bottom
+      // pinchos arriba y abajo
       do SpriteManager.draw_top_spikes(0);
       do SpriteManager.draw_bottom_spikes(0);
       do player.reset(8, 128);
       do score.reset();
-      // reset meteoritos to their initial positions (right side of screen, spaced apart)
+      // resetea los meteoritos
       do meteorito1.reset(491, 100);
       do meteorito2.reset(400, 151);
       do meteorito3.reset(300, 80);
