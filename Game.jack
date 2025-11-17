@@ -29,7 +29,7 @@ class Game {
       // inicializar objetos
       let player = Player.new(8, 128);
       let score = Score.new();
-      // crea meteoritos con separaracion (no spawneat todos juntos) y diferentes sprites
+      // crea meteoritos con separaracion (no spawnear todos juntos) y con diferentes sprites 
       let meteorito1 = Meteorito.new(491, 100);
       let meteorito2 = Meteorito.new(400, 151);
       let meteorito3 = Meteorito.new(300, 80);
@@ -48,7 +48,7 @@ class Game {
    }
 
    method void dispose() {
-      // objetos chao
+      // disponer (eliminar?)  objetos
       do player.dispose();
       do score.dispose();
       do meteorito1.dispose();
