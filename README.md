@@ -30,6 +30,9 @@ Este juego fue desarrollado por:
 - **Lenguaje**: Jack (Nand2Tetris)
 - **Plataforma**: Hack Computer / VM Emulator
 
+## Video del proyecto
+<iframe width="560" height="315" src="https://www.youtube.com/embed/WzQTht0MdEQ?si=jqVK1o1Mmv17bUSF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Estructura del Proyecto
 
 - `Game.jack`: Lógica principal del juego, manejo de estados y colisiones
