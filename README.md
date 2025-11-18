@@ -31,7 +31,7 @@ Este juego fue desarrollado por:
 - **Plataforma**: Hack Computer / VM Emulator
 
 ## Video del proyecto
-<iframe width="560" height="315" src="https://www.youtube.com/embed/WzQTht0MdEQ?si=jqVK1o1Mmv17bUSF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+https://youtu.be/WzQTht0MdEQ
 
 ## Estructura del Proyecto
 
